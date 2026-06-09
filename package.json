@@ -1,8 +1,7 @@
 {
   "name": "@learnaihubc/learn-deck",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Let AI create PPTs in one click and turn knowledge into polished, editable learning decks.",
-  "type": "module",
   "bin": {
     "learn-deck": "bin/install.mjs"
   },

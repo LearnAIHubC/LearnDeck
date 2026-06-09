@@ -15,6 +15,7 @@ const CONVERTER_VALUE_OPTIONS = new Set([
   "--viewport-height",
 ]);
 const CONVERTER_BOOL_OPTIONS = new Set(["--keep-raw", "--no-preview"]);
+const STYLE_NAMES = new Set(["clean", "academic", "warm", "bold", "dark"]);
 
 function usage(exitCode = 0) {
   console.log(`Usage:
@@ -28,6 +29,7 @@ Options:
   --name <base>               Output basename, defaults to deck title or slides filename
   --html <file>               Generated HTML path, defaults to <out-dir>/<name>.html
   --html-only                 Generate HTML and skip PPTX conversion
+  --style <name>              Visual style: clean, academic, warm, bold, dark
   --slide-selector <css>      Forwarded to converter, defaults to .slide
   --chrome <path>             Forwarded to converter
   --ppt-width <inches>        Forwarded to converter
@@ -43,6 +45,7 @@ Slide plan shape:
   {
     "title": "Deck title",
     "subtitle": "Optional deck subtitle",
+    "style": "clean",
     "slides": [
       { "layout": "cover", "title": "Title", "subtitle": "Subtitle" },
       { "title": "Agenda", "bullets": ["Point A", "Point B"] },
@@ -69,6 +72,7 @@ function parseArgs(argv) {
     else if (arg === "--name") opts.name = next();
     else if (arg === "--html") opts.html = next();
     else if (arg === "--html-only") opts.htmlOnly = true;
+    else if (arg === "--style") opts.style = next();
     else if (CONVERTER_VALUE_OPTIONS.has(arg)) opts.converterArgs.push(arg, next());
     else if (CONVERTER_BOOL_OPTIONS.has(arg)) opts.converterArgs.push(arg);
     else throw new Error(`Unknown argument: ${arg}`);
@@ -76,6 +80,14 @@ function parseArgs(argv) {
   if (!opts.slides) throw new Error("--slides is required");
   if (!opts.outDir) throw new Error("--out-dir is required");
   return opts;
+}
+
+function resolveStyle(value) {
+  const style = text(value || "clean").trim().toLowerCase();
+  if (!STYLE_NAMES.has(style)) {
+    throw new Error(`Unknown style "${value}". Use one of: ${[...STYLE_NAMES].join(", ")}`);
+  }
+  return style;
 }
 
 function readJson(file) {
@@ -254,7 +266,7 @@ function renderSlide(slide, index, total) {
   </section>`;
 }
 
-function renderHtml(deck) {
+function renderHtml(deck, styleName) {
   const total = deck.slides.length;
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -380,21 +392,82 @@ function renderHtml(deck) {
     font-size: 14px; font-weight: 800;
   }
   .dark .footer { color: #94a3b8; }
+
+  body.theme-academic {
+    background: #d8e1ec;
+    font-family: Georgia, "Times New Roman", "PingFang SC", serif;
+  }
+  body.theme-academic .slide:not(.dark) { background: #f8fafc; }
+  body.theme-academic .accent-a { background: #c7d2fe; }
+  body.theme-academic .accent-b { background: #fde68a; }
+  body.theme-academic .accent-c { background: #bae6fd; }
+  body.theme-academic .kicker { background: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; }
+  body.theme-academic .metric { background: #1e3a8a; }
+  body.theme-academic .metric-2 { background: #365314; }
+  body.theme-academic .metric-3 { background: #92400e; }
+  body.theme-academic .bullets li::before { background: #1e3a8a; }
+
+  body.theme-warm { background: #eadfd3; }
+  body.theme-warm .slide:not(.dark) { background: #fff7ed; }
+  body.theme-warm .accent-a { background: #fed7aa; }
+  body.theme-warm .accent-b { background: #fecaca; }
+  body.theme-warm .accent-c { background: #fde68a; }
+  body.theme-warm .kicker { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+  body.theme-warm .metric { background: #c2410c; }
+  body.theme-warm .metric-2 { background: #b45309; }
+  body.theme-warm .metric-3 { background: #be123c; }
+  body.theme-warm .bullets li::before { background: #ea580c; }
+  body.theme-warm .badge { background: #ea580c; }
+
+  body.theme-bold { background: #dbeafe; }
+  body.theme-bold .slide:not(.dark) { background: #f8fafc; }
+  body.theme-bold .accent-a { background: #a5b4fc; }
+  body.theme-bold .accent-b { background: #f0abfc; }
+  body.theme-bold .accent-c { background: #67e8f9; }
+  body.theme-bold .kicker { background: #ede9fe; color: #6d28d9; border-color: #c4b5fd; }
+  body.theme-bold .metric { background: #7c3aed; }
+  body.theme-bold .metric-2 { background: #0284c7; }
+  body.theme-bold .metric-3 { background: #f97316; }
+  body.theme-bold .bullets li::before { background: #7c3aed; }
+  body.theme-bold .badge { background: #7c3aed; }
+
+  body.theme-dark { background: #020617; }
+  body.theme-dark .slide:not(.dark) { background: #0f172a; color: #f8fafc; }
+  body.theme-dark .slide:not(.dark) .title { color: #f8fafc; }
+  body.theme-dark .slide:not(.dark) .subtitle,
+  body.theme-dark .slide:not(.dark) .footer,
+  body.theme-dark .slide:not(.dark) .panel-label,
+  body.theme-dark .slide:not(.dark) .column p,
+  body.theme-dark .slide:not(.dark) .item-card p,
+  body.theme-dark .slide:not(.dark) .bullets li { color: #cbd5e1; }
+  body.theme-dark .slide:not(.dark) .cover-panel,
+  body.theme-dark .slide:not(.dark) .content-panel,
+  body.theme-dark .slide:not(.dark) .side-panel,
+  body.theme-dark .slide:not(.dark) .column,
+  body.theme-dark .slide:not(.dark) .item-card {
+    background: #111827;
+    border-color: #334155;
+    box-shadow: none;
+  }
+  body.theme-dark .accent-a { background: rgba(59,130,246,.34); }
+  body.theme-dark .accent-b { background: rgba(244,63,94,.28); }
+  body.theme-dark .accent-c { background: rgba(20,184,166,.30); }
+  body.theme-dark .kicker { background: rgba(255,255,255,.12); color: #bfdbfe; border-color: rgba(255,255,255,.18); }
 </style>
 </head>
-<body>
+<body class="theme-${styleName}">
 ${deck.slides.map((slide, index) => renderSlide(slide, index, total)).join("\n")}
 </body>
 </html>
 `;
 }
 
-function writeHtml(deck, opts, baseName) {
+function writeHtml(deck, opts, baseName, styleName) {
   const outDir = path.resolve(opts.outDir);
   fs.mkdirSync(outDir, { recursive: true });
   const htmlPath = path.resolve(opts.html || path.join(outDir, `${baseName}.html`));
   fs.mkdirSync(path.dirname(htmlPath), { recursive: true });
-  fs.writeFileSync(htmlPath, renderHtml(deck), "utf8");
+  fs.writeFileSync(htmlPath, renderHtml(deck, styleName), "utf8");
   return htmlPath;
 }
 
@@ -424,8 +497,9 @@ function main() {
   const opts = parseArgs(process.argv);
   const raw = readJson(opts.slides);
   const deck = normalizeDeck(raw, opts.slides);
+  const styleName = resolveStyle(opts.style || deck.style);
   const baseName = safeName(opts.name || deck.name || deck.title || path.basename(opts.slides, path.extname(opts.slides)));
-  const htmlPath = writeHtml(deck, opts, baseName);
+  const htmlPath = writeHtml(deck, opts, baseName, styleName);
   console.log(`Generated HTML: ${htmlPath}`);
   if (!opts.htmlOnly) convert(htmlPath, opts, baseName);
 }

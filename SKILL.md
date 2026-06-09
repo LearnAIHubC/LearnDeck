@@ -20,7 +20,9 @@ Use this when the user asks to create a new PPT/PPTX from a topic, outline, note
 node /path/to/learn-deck/scripts/generate_ppt.js \
   --slides /path/to/slides.json \
   --out-dir /path/to/output \
-  --name deck-name
+  --name deck-name \
+  --style clean \
+  --no-preview
 ```
 
 This command first writes `<out-dir>/<name>.html`, then calls the HTML-to-PPT converter.
@@ -43,7 +45,9 @@ NODE_PATH="$NODE_MODULES:/Users/$USER/node_modules" "$NODE_BIN" \
   /path/to/learn-deck/scripts/generate_ppt.js \
   --slides /path/to/slides.json \
   --out-dir /path/to/output \
-  --name deck-name
+  --name deck-name \
+  --style clean \
+  --no-preview
 ```
 
 or:
@@ -65,11 +69,20 @@ When running in Codex Desktop, call `load_workspace_dependencies` first and set:
 
 ### Generate PPT
 
-1. Turn the user's topic/content into a concise `slides.json` plan.
-2. Keep each slide focused; split long content into more slides rather than crowding one slide.
-3. Use `layout` values `cover`, `content`, `steps`, `compare`, or `summary` when useful.
-4. Run `scripts/generate_ppt.js`; it writes HTML and then runs the converter.
-5. Report the generated `.html` and `.pptx` paths.
+1. Ask one short style question when the user has not specified a style and the request is not urgent. Offer choices such as `clean`, `academic`, `warm`, `bold`, or `dark`; if the user says they do not care, choose based on audience and topic.
+2. Turn the user's topic/content into a concise `slides.json` plan. Include `"style": "<chosen-style>"` in the plan or pass `--style`.
+3. Keep each slide focused; split long content into more slides rather than crowding one slide.
+4. Use `layout` values `cover`, `content`, `steps`, `compare`, or `summary` when useful.
+5. Run `scripts/generate_ppt.js`; it writes HTML and then runs the converter. Use `--no-preview` by default for direct delivery.
+6. Do not run extra validation by default. Directly report the generated `.html` and `.pptx` paths to the user/customer.
+
+### Revision Loop
+
+When the user/customer asks for adjustments after delivery:
+
+1. Edit the original generated HTML file rather than starting over.
+2. Run `scripts/html_to_ppt.js` on that same HTML file with the same `--name`/output directory.
+3. Return the regenerated PPTX path. Only validate or preview when the user explicitly asks or a conversion error occurs.
 
 ### HTML to PPT
 
@@ -83,7 +96,7 @@ When running in Codex Desktop, call `load_workspace_dependencies` first and set:
    - Editable rectangle/rounded-rectangle/ellipse shapes for backgrounds, pills, cards, borders, and bullets.
    - Separate image objects for extracted SVG icons, using PNG in the PPTX for compatibility while preserving source SVGs on disk.
    - Native OOXML linear gradients where possible.
-7. Validate the package with `unzip -t`. If LibreOffice is available, optionally open/export a PDF preview.
+7. Deliver the generated PPTX path directly. Do not run extra validation by default; validate only when explicitly requested or when troubleshooting a failed conversion.
 
 ## Script Options
 
@@ -97,6 +110,7 @@ Important HTML-to-PPT options:
 - `--input <file-or-url>`: Required. Local HTML file or HTTP(S) URL.
 - `--out-dir <dir>`: Required. Output directory.
 - `--name <base>`: Output basename. Defaults to input filename.
+- `--style <name>`: For `generate_ppt.js`, choose `clean`, `academic`, `warm`, `bold`, or `dark`.
 - `--slide-selector <css>`: Defaults to `.slide`.
 - `--chrome <path>`: Use a specific Chrome/Edge/Chromium executable.
 - `--ppt-width <inches>` and `--ppt-height <inches>`: Defaults to 13.333 x 7.5.
