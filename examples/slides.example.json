@@ -1,0 +1,53 @@
+{
+  "title": "LearnDeck 工作流",
+  "subtitle": "先生成 HTML，再转换为可编辑 PPTX",
+  "slides": [
+    {
+      "layout": "cover",
+      "kicker": "OVERVIEW",
+      "title": "LearnDeck 工作流",
+      "subtitle": "用结构化内容稳定生成 HTML 幻灯片，再通过浏览器坐标重建为可编辑 PowerPoint 对象。",
+      "metrics": [
+        { "value": "01", "label": "generate html", "note": "脚本先写出标准 .slide 页面" },
+        { "value": "02", "label": "html to ppt", "note": "转换器读取 DOM 坐标并生成 PPTX" },
+        { "value": "03", "label": "editable", "note": "文本、形状和图标分离" }
+      ]
+    },
+    {
+      "title": "适用场景",
+      "subtitle": "当用户要从主题、提纲或文案生成 PPT 时，优先走 generate_ppt。",
+      "bullets": [
+        "输入可以是主题、资料摘要、会议纪要或产品说明",
+        "Agent 先整理成 slides.json，再交给脚本生成 HTML",
+        "需要强自定义视觉时，也可以直接手写 HTML 后转换"
+      ],
+      "metrics": [
+        { "value": "JSON", "label": "slide plan", "note": "内容结构清晰" },
+        { "value": "HTML", "label": "layout", "note": "浏览器负责排版" },
+        { "value": "PPTX", "label": "delivery", "note": "最终可编辑" }
+      ]
+    },
+    {
+      "layout": "steps",
+      "title": "命令链路",
+      "subtitle": "generate_ppt 会把两步串起来；html_to_ppt 只处理已有 HTML。",
+      "items": [
+        { "title": "整理内容", "body": "把用户输入拆成标题、要点、指标、步骤或对比列。" },
+        { "title": "生成 HTML", "body": "写出 1280x720 的 .slide 页面。" },
+        { "title": "浏览器读取", "body": "用 Playwright 获取真实 DOM 坐标与样式。" },
+        { "title": "输出 PPTX", "body": "用可编辑文本框、形状和图片对象重建页面。" }
+      ]
+    },
+    {
+      "layout": "summary",
+      "title": "交付物",
+      "subtitle": "输出目录会同时保留源 HTML、PPTX 和抽取资源。",
+      "cards": [
+        { "title": "源 HTML", "body": "便于继续调整布局和视觉。" },
+        { "title": "可编辑 PPTX", "body": "可在 PowerPoint 或 Keynote 中继续编辑。" },
+        { "title": "资源目录", "body": "内联 SVG 会保存为 SVG 和 PNG 预览。" }
+      ],
+      "badge": "DONE"
+    }
+  ]
+}
