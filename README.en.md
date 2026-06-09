@@ -40,6 +40,22 @@ LearnDeck is designed for that moment when you already have knowledge, but need 
 - **Editable delivery** so you can keep refining the wording, flow, and style
 - **Reusable knowledge assets** that can grow into courses, training decks, or study reviews
 
+## Install
+
+Run:
+
+```bash
+npx @learnaihubc/learn-deck
+```
+
+Then restart Codex and use `$learn-deck`.
+
+To update an existing installation:
+
+```bash
+npx @learnaihubc/learn-deck --force
+```
+
 ## What Can You Create?
 
 LearnDeck is especially useful for:

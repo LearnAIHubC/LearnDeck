@@ -47,6 +47,22 @@ LearnDeck 的交付结果更像是一套“学习型演示稿”，而不是普�
 - **更方便修改的结果**：后续可以继续调整文字、页面顺序和表达方式
 - **更容易复用的材料**：同一套内容可以延展成课程、培训、分享或复盘
 
+## 安装
+
+运行：
+
+```bash
+npx @learnaihubc/learn-deck
+```
+
+然后重启 Codex，使用 `$learn-deck`。
+
+更新已有安装时运行：
+
+```bash
+npx @learnaihubc/learn-deck --force
+```
+
 ## 适合制作什么
 
 LearnDeck 特别适合这些类型的材料：
