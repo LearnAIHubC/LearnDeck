@@ -109,3 +109,7 @@ LearnDeck aims to make high-quality learning decks easier to create.
 It is for people who have ideas, notes, expertise, or teaching material, but do not want to spend most of their time shaping structure and polishing pages. A good PPT should help the presenter speak clearly and help the audience understand easily.
 
 LearnDeck exists to make that bridge lighter, faster, and more beautiful.
+
+## 友情链接
+
+- [LINUX DO](https://linux.do/) —— 新的理想型社区，技术爱好者的聚集地。
