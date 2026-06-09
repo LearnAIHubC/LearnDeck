@@ -52,7 +52,7 @@ LearnDeck 的交付结果更像是一套“学习型演示稿”，而不是普�
 运行：
 
 ```bash
-npx @learnaihubc/learn-deck
+npx --yes github:LearnAIHubC/LearnDeck
 ```
 
 然后重启 Codex，使用 `$learn-deck`。
@@ -60,7 +60,7 @@ npx @learnaihubc/learn-deck
 更新已有安装时运行：
 
 ```bash
-npx @learnaihubc/learn-deck --force
+npx --yes github:LearnAIHubC/LearnDeck --force
 ```
 
 ## 适合制作什么
