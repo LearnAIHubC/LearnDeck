@@ -1,6 +1,7 @@
 {
   "title": "LearnDeck 工作流",
   "subtitle": "先生成 HTML，再转换为可编辑 PPTX",
+  "style": "clean",
   "slides": [
     {
       "layout": "cover",

@@ -38,6 +38,7 @@ LearnDeck is designed for that moment when you already have knowledge, but need 
 - **Clearer structure** with sections, key points, examples, and takeaways
 - **Polished pages** that feel ready for lessons, workshops, reports, and sharing
 - **Editable delivery** so you can keep refining the wording, flow, and style
+- **Multiple visual styles** such as clean, academic, warm, bold, or dark
 - **Reusable knowledge assets** that can grow into courses, training decks, or study reviews
 
 ## Install
