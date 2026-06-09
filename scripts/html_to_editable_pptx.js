@@ -511,9 +511,30 @@ function shouldSkipVisual(item) {
   return !item.hasVisual;
 }
 
+function primaryRadiusToken(item) {
+  return String(item.style && item.style.borderRadius || "0").split(/\s+/)[0] || "0";
+}
+
+function primaryRadiusPx(item) {
+  const token = primaryRadiusToken(item);
+  if (/%$/.test(token)) {
+    return (pxNum(token, 0) / 100) * Math.min(item.box.w, item.box.h);
+  }
+  return pxNum(token, 0);
+}
+
+function hasEllipseRadius(item) {
+  const token = primaryRadiusToken(item);
+  if (/%$/.test(token) && pxNum(token, 0) >= 49) return true;
+  const radius = primaryRadiusPx(item);
+  const minSide = Math.min(item.box.w, item.box.h);
+  const aspect = Math.max(item.box.w, item.box.h) / Math.max(1, minSide);
+  return aspect < 1.15 && radius >= minSide / 2;
+}
+
 function shapeTypeFor(item) {
-  const radius = pxNum(String(item.style.borderRadius || "0").split(" ")[0], 0);
-  if (item.tag === "SPAN" && Math.abs(item.box.w - item.box.h) < 2 && radius > item.box.w / 3) return "ellipse";
+  if (hasEllipseRadius(item)) return "ellipse";
+  const radius = primaryRadiusPx(item);
   return radius > 0 ? "roundRect" : "rect";
 }
 
@@ -538,9 +559,10 @@ function addSlideObjects(pptSlide, slideData, ctx, opts, svgAssets, gradientPatc
     const bg = rgbParts(item.style.backgroundColor);
     const fill = colors[0] || (bg.alpha > 0.01 ? bg.hex : "FFFFFF");
     const transparency = colors[0] ? 0 : Math.round((1 - bg.alpha) * 100);
-    addShape(pptSlide, shapeTypeFor(item), name, item.box, fill, ctx, {
+    const shapeType = shapeTypeFor(item);
+    addShape(pptSlide, shapeType, name, item.box, fill, ctx, {
       transparency,
-      rectRadiusPx: pxNum(String(item.style.borderRadius || "0").split(" ")[0], 0),
+      rectRadiusPx: shapeType === "roundRect" ? primaryRadiusPx(item) : undefined,
       line: lineFor(item, ctx),
       shadow: boxShadowToPpt(item.style.boxShadow, ctx.pxToPt),
     });
