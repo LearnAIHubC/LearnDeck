@@ -45,7 +45,7 @@ LearnDeck is designed for that moment when you already have knowledge, but need 
 Run:
 
 ```bash
-npx @learnaihubc/learn-deck
+npx --yes github:LearnAIHubC/LearnDeck
 ```
 
 Then restart Codex and use `$learn-deck`.
@@ -53,7 +53,7 @@ Then restart Codex and use `$learn-deck`.
 To update an existing installation:
 
 ```bash
-npx @learnaihubc/learn-deck --force
+npx --yes github:LearnAIHubC/LearnDeck --force
 ```
 
 ## What Can You Create?
