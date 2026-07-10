@@ -15,7 +15,8 @@
     "assets",
     "bin",
     "examples",
-    "scripts"
+    "scripts",
+    "templates"
   ],
   "keywords": [
     "codex",

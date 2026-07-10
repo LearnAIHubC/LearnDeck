@@ -102,6 +102,7 @@ function install(opts) {
     "assets",
     "examples",
     "scripts",
+    "templates",
   ]) {
     copyEntry(name, dest);
   }
