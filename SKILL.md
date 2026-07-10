@@ -117,6 +117,15 @@ Important HTML-to-PPT options:
 - `--keep-raw`: Keep the intermediate unpatched PPTX.
 - `--no-preview`: Skip LibreOffice PDF/PNG preview generation.
 
+## Bundled Showcase Templates
+
+LearnDeck includes two editable four-slide showcase templates:
+
+- `templates/learn-deck-showcase-zh.pptx`
+- `templates/learn-deck-showcase-en.pptx`
+
+Use them as visual references when the user asks for the LearnDeck showcase style, or clone and revise them when a four-slide knowledge-to-PPT overview matches the request.
+
 ## Notes
 
 - `generate_ppt.js` expects an agent-authored slide plan JSON; it is intentionally deterministic and does not call an LLM by itself.

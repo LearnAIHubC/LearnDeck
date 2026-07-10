@@ -1,7 +1,7 @@
 # LearnDeck 中文介绍
 
 <p align="center">
-  <img src="assets/learn-deck-cover.png" alt="LearnDeck 封面预览" width="900">
+  <img src="assets/learn-deck-cover.png" alt="LearnDeck 可编辑 PPT 展示模板" width="900">
 </p>
 
 ## LearnDeck 是什么
@@ -64,6 +64,13 @@ npx --yes github:LearnAIHubC/LearnDeck
 npx --yes github:LearnAIHubC/LearnDeck --force
 ```
 
+## 展示模板
+
+- [下载中文可编辑 PPTX 模板](templates/learn-deck-showcase-zh.pptx)
+- [下载英文可编辑 PPTX 模板](templates/learn-deck-showcase-en.pptx)
+
+本 README 中的封面图和流程图均由这两套真实可编辑模板渲染生成。
+
 ## 适合制作什么
 
 LearnDeck 特别适合这些类型的材料：
@@ -89,7 +96,7 @@ LearnDeck 特别适合这些类型的材料：
 4. **继续打磨**：根据你的语气、品牌、课堂风格或听众继续调整
 
 <p align="center">
-  <img src="assets/learn-deck-flow.png" alt="LearnDeck 流程预览" width="900">
+  <img src="assets/learn-deck-flow.png" alt="LearnDeck 可编辑 HTML 到 PPTX 转换流程页" width="900">
 </p>
 
 ## 为什么叫 LearnDeck

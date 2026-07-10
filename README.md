@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/learn-deck-cover-en.png" alt="LearnDeck English cover preview" width="900">
+  <img src="assets/learn-deck-cover-en.png" alt="LearnDeck editable PPT showcase template" width="900">
 </p>
 
 <p align="center">
@@ -68,6 +68,13 @@ To update an existing installation:
 npx --yes github:LearnAIHubC/LearnDeck --force
 ```
 
+## Showcase Templates
+
+- [Download the English editable PPTX template](templates/learn-deck-showcase-en.pptx)
+- [Download the Chinese editable PPTX template](templates/learn-deck-showcase-zh.pptx)
+
+The cover and workflow images in this README are rendered from these actual editable decks.
+
 ## What Can You Create?
 
 LearnDeck is especially useful for:
@@ -91,7 +98,7 @@ If your goal is to help people understand something more clearly, LearnDeck give
 4. **Edit freely**: adjust wording, tone, brand, sequence, and classroom style
 
 <p align="center">
-  <img src="assets/learn-deck-flow-en.png" alt="LearnDeck English flow preview" width="900">
+  <img src="assets/learn-deck-flow-en.png" alt="LearnDeck editable HTML-to-PPTX workflow slide" width="900">
 </p>
 
 ## Why The Name LearnDeck?
