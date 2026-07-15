@@ -38,7 +38,7 @@ LearnDeck is designed for that moment when you already have knowledge, but need 
 - **Clearer structure** with sections, key points, examples, and takeaways
 - **Polished pages** that feel ready for lessons, workshops, reports, and sharing
 - **Editable delivery** so you can keep refining the wording, flow, and style
-- **Multiple visual styles** such as clean, academic, warm, bold, or dark
+- **Custom visual direction** derived from your brief, audience, brand, or reference image
 - **Reusable knowledge assets** that can grow into courses, training decks, or study reviews
 
 ## Install
@@ -57,8 +57,29 @@ To update an existing installation:
 npx --yes github:LearnAIHubC/LearnDeck --force
 ```
 
+## Direct HTML to PPTX
+
+LearnDeck's default creative workflow does not require an intermediate JSON plan or a fixed layout list:
+
+`your content + visual direction → model-designed HTML/CSS → browser geometry → editable PPTX`
+
+The model designs each slide around its message and keeps the deck coherent with shared colors, typography, spacing, and visual motifs. The existing JSON generator remains available only as a deterministic legacy option.
+
+To convert a model-authored HTML deck directly:
+
+```bash
+node scripts/html_to_ppt.js \
+  --input templates/learn-deck-polished-style.html \
+  --out-dir output \
+  --name learn-deck-polished-style
+```
+
+The bundled HTML is a seven-slide composition library, not a required sequence or content schema. Keep its visual language while selecting and reshaping only the pages that fit the user's material.
+
 ## Showcase Templates
 
+- [Open the seven-slide polished HTML style library](templates/learn-deck-polished-style.html)
+- [Download the polished editable PPTX style template](templates/learn-deck-polished-style.pptx)
 - [Download the English editable PPTX template](templates/learn-deck-showcase-en.pptx)
 - [Download the Chinese editable PPTX template](templates/learn-deck-showcase-zh.pptx)
 
