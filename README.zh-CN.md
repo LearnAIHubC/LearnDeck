@@ -44,7 +44,7 @@ LearnDeck 的交付结果更像是一套“学习型演示稿”，而不是普�
 - **更清楚的内容结构**：主题、章节、重点、案例和结论被整理得更有层次
 - **更适合讲解的节奏**：页面顺序围绕学习者的理解路径展开
 - **更有质感的视觉表达**：版式干净，重点突出，适合课堂、培训和汇报
-- **更多风格选择**：可选择清爽、学术、暖色、大胆、深色等方向
+- **按需求定制视觉**：根据受众、品牌、内容和参考图动态设计风格
 - **更方便修改的结果**：后续可以继续调整文字、页面顺序和表达方式
 - **更容易复用的材料**：同一套内容可以延展成课程、培训、分享或复盘
 
@@ -64,8 +64,29 @@ npx --yes github:LearnAIHubC/LearnDeck
 npx --yes github:LearnAIHubC/LearnDeck --force
 ```
 
+## HTML 直接生成 PPTX
+
+LearnDeck 默认的创作链路不需要中间 JSON，也不限制在固定版式列表里：
+
+`你的内容 + 视觉要求 → 模型逐页设计 HTML/CSS → 浏览器真实坐标 → 可编辑 PPTX`
+
+模型会根据每页要表达的信息设计构图，再用共享的配色、字体、间距和视觉元素保持整套演示稿一致。现有 JSON 生成器仅作为需要确定性批量输出时的兼容选项保留。
+
+模型生成 HTML 后，可直接转换：
+
+```bash
+node scripts/html_to_ppt.js \
+  --input templates/learn-deck-polished-style.html \
+  --out-dir output \
+  --name learn-deck-polished-style
+```
+
+内置 HTML 是一套七页构图样本库，不是必须照搬的顺序、内容模板或固定版式。生成时保留视觉语言，只选择并重构适合用户内容的页面。
+
 ## 展示模板
 
+- [查看七页精致浅色 HTML 构图样本库](templates/learn-deck-polished-style.html)
+- [下载精致浅色可编辑 PPTX 风格模板](templates/learn-deck-polished-style.pptx)
 - [下载中文可编辑 PPTX 模板](templates/learn-deck-showcase-zh.pptx)
 - [下载英文可编辑 PPTX 模板](templates/learn-deck-showcase-en.pptx)
 

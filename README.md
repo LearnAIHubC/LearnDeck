@@ -1,122 +1,181 @@
-# LearnDeck
+<div align="center">
 
-<p align="center">
-  <a href="README.zh-CN.md">简体中文</a> · English
+<h1>LearnDeck</h1>
+
+<h3>Model-designed HTML → polished, editable PowerPoint</h3>
+
+<p>
+  Turn a topic, outline, notes, or source material into a coherent presentation.<br>
+  The model designs each slide in HTML/CSS, then LearnDeck rebuilds it as editable PPTX objects.
 </p>
 
-<p align="center">
-  <img src="assets/learn-deck-cover-en.png" alt="LearnDeck editable PPT showcase template" width="900">
+<p>
+  <a href="README.zh-CN.md">简体中文</a>
+  ·
+  <a href="templates/learn-deck-polished-style.html">HTML style library</a>
+  ·
+  <a href="templates/learn-deck-polished-style.pptx">Editable PPTX</a>
 </p>
 
-<p align="center">
-  <strong>Let AI create PPTs in one click.</strong><br>
-  Turn knowledge into clear, polished, editable presentation decks.
+<p>
+  <img src="https://img.shields.io/badge/version-0.4.0-6549E9?style=flat-square" alt="Version 0.4.0">
+  <img src="https://img.shields.io/badge/Codex-Skill-2F72F2?style=flat-square" alt="Codex Skill">
+  <img src="https://img.shields.io/badge/HTML_to_PPTX-editable-0AA49D?style=flat-square" alt="Editable HTML to PPTX">
+  <img src="https://img.shields.io/badge/license-MIT-FF6B21?style=flat-square" alt="MIT License">
 </p>
 
----
+<img src="assets/learn-deck-cover-en.png" alt="LearnDeck turns source content into a polished editable presentation" width="100%">
 
-## What Is LearnDeck?
+</div>
 
-LearnDeck is an AI presentation companion for learning content.
+## Why LearnDeck
 
-It helps you turn a topic, outline, notes, course material, article summary, or rough idea into a clear, beautiful, editable PPT. Instead of starting from a blank deck, you start with knowledge. LearnDeck helps shape that knowledge into a presentation people can follow.
+Most presentation generators make you choose between a rigid schema and a flattened screenshot. LearnDeck takes a different route:
 
-The idea is simple: let AI create the first high-quality PPT for you, then keep the result easy to revise, personalize, and reuse.
+| Design follows the message | The result stays editable | Quality is visually verified |
+| --- | --- | --- |
+| The model authors the final HTML/CSS directly. No fixed layout enum is required. | Text, cards, shapes, gradients, and icons are rebuilt as separate PowerPoint objects. | Chromium audits the DOM before conversion; the final PPTX is rendered once for delivery QA. |
 
-## Why It Exists
+The default creative pipeline does **not** require an intermediate JSON slide plan:
 
-Learning content often has enough substance, but turning it into a deck takes time:
+```text
+content + visual direction
+        ↓
+model-designed HTML/CSS
+        ↓
+browser DOM audit
+        ↓
+browser-measured geometry
+        ↓
+editable PowerPoint objects
+        ↓
+contact-sheet + full-size visual QA
+```
 
-- You need a clear order for the ideas
-- You need pages that are easy to scan
-- You need a polished look that feels presentation-ready
-- You need the result to stay editable after generation
-- You need something that works for teaching, training, reporting, or sharing
+## Latest seven-slide style system
 
-LearnDeck is designed for that moment when you already have knowledge, but need a deck that makes it easier to teach and easier to understand.
+<p align="center">
+  <img src="assets/learn-deck-polished-overview.png" alt="Seven-slide LearnDeck polished composition library" width="100%">
+</p>
 
-## Who It Is For
+This showcase includes a cover, statement page, relationship map, timeline, comparison, data story, and action close. It is a **composition library, not a mandatory sequence or fixed content template**. The user's content still determines the slide count, structure, visual emphasis, and layout of every page.
 
-- Teachers, instructors, and workshop hosts
-- Course creators and knowledge creators
-- Teams preparing internal training or onboarding material
-- Learners and researchers turning notes into reports
-- Anyone who wants AI to turn scattered knowledge into a presentable PPT
+## Quick start
 
-## What You Get
-
-- **One-click PPT generation** from a topic, outline, notes, or learning material
-- **Clearer structure** with sections, key points, examples, and takeaways
-- **Polished pages** that feel ready for lessons, workshops, reports, and sharing
-- **Editable delivery** so you can keep refining the wording, flow, and style
-- **Multiple visual styles** such as clean, academic, warm, bold, or dark
-- **Reusable knowledge assets** that can grow into courses, training decks, or study reviews
-
-## Install
-
-Run:
+### 1. Install the Skill
 
 ```bash
 npx --yes github:LearnAIHubC/LearnDeck
 ```
 
-Then restart Codex and use `$learn-deck`.
-
-To update an existing installation:
+Restart Codex, then invoke `$learn-deck`. To refresh an existing installation:
 
 ```bash
 npx --yes github:LearnAIHubC/LearnDeck --force
 ```
 
-## Showcase Templates
+### 2. Describe the presentation you want
 
-- [Download the English editable PPTX template](templates/learn-deck-showcase-en.pptx)
-- [Download the Chinese editable PPTX template](templates/learn-deck-showcase-zh.pptx)
+```text
+Use $learn-deck to turn my onboarding notes into a concise 10-slide deck.
+Use a calm editorial style with generous whitespace and a clear data story.
+Keep every text box, shape, gradient, and icon editable in PowerPoint.
+```
 
-The cover and workflow images in this README are rendered from these actual editable decks.
+You can provide a topic, outline, document, course material, study notes, brand direction, or reference image. LearnDeck derives the visual language from the request instead of forcing the content into a preset card count.
 
-## What Can You Create?
+### 3. Audit the DOM before conversion
 
-LearnDeck is especially useful for:
+```bash
+node scripts/html_to_ppt.js \
+  --input path/to/deck.html \
+  --dom-audit-only
+```
 
-- Course introductions and lesson outlines
-- Classroom slides and learning cards
-- Internal training decks
-- Learning progress reports
-- Study group and book club presentations
-- Methodology explainers
-- Product or business knowledge training
-- Research summaries and knowledge reviews
+This Chromium preflight checks slide and text overflow, declared overlap/containment rules, unexpected single-line wrapping, centered text, centered SVG icons, chart labels, and text safety inside circles and compact cards. It produces structured errors without generating screenshots.
 
-If your goal is to help people understand something more clearly, LearnDeck gives you a strong first deck.
+### 4. Keep revising the same HTML
 
-## The Experience
+The generated HTML remains the source of truth. When the content or style changes, LearnDeck edits that HTML, reconverts the PPTX, rerenders the previews, and checks the result again.
 
-1. **Bring content**: start with a topic, outline, notes, article summary, or course material
-2. **Let AI shape it**: organize the message into titles, key points, examples, and takeaways
-3. **Create PPT**: get a coherent deck with a clean visual style and a clear learning rhythm
-4. **Edit freely**: adjust wording, tone, brand, sequence, and classroom style
+## What stays editable
 
-<p align="center">
-  <img src="assets/learn-deck-flow-en.png" alt="LearnDeck editable HTML-to-PPTX workflow slide" width="900">
-</p>
+| HTML/CSS source | PowerPoint output |
+| --- | --- |
+| Headings, paragraphs, labels, and bullets | Separate editable text boxes |
+| Cards, panels, pills, borders, and circles | Native PowerPoint shapes |
+| Linear gradients and quiet decorative accents | Editable gradient and shape objects |
+| Inline SVG icons | Separate icon objects, with SVG sources preserved |
+| Browser positions and dimensions | Rebuilt on a 16:9 PowerPoint canvas |
 
-## Why The Name LearnDeck?
+The converter favors **editable, separated elements** over a single full-slide screenshot.
 
-“Learn” stands for learning content, knowledge sharing, and teaching moments.
+## DOM first, final render once
 
-“Deck” stands for a complete presentation that can be taught, shared, edited, and reused.
+LearnDeck separates fast structural validation from final presentation validation:
 
-LearnDeck is not just a slide maker. It is a learning-deck partner that helps knowledge become a complete presentation with flow, clarity, and visual polish.
+1. **Browser DOM preflight, no screenshots** — catches overflow, overlap, wrapping, centering, icon, chart-label, circle, pill, and card failures before a PPTX is written.
+2. **Final contact-sheet review** — checks narrative flow, composition variety, density, whitespace, hierarchy, color, and page-to-page consistency.
+3. **Final full-size slide review** — checks PowerPoint-specific clipping, wrapping, reconstruction, fine alignment, contrast, and chart labels.
 
-## Vision
+The DOM audit replaces repeated draft screenshots, but not the final render: PowerPoint and LibreOffice can use different font metrics and object geometry from Chromium. If a problem appears, the original HTML is edited and the relevant audit/conversion loop runs again.
 
-LearnDeck aims to make high-quality learning decks easier to create.
+Generate the same QA assets manually with:
 
-It is for people who have ideas, notes, expertise, or teaching material, but do not want to spend most of their time shaping structure and polishing pages. A good PPT should help the presenter speak clearly and help the audience understand easily.
+```bash
+node scripts/render_pptx_preview.js \
+  --input output/deck-name-editable.pptx \
+  --out-dir output/deck-name-qa
+```
 
-LearnDeck exists to make that bridge lighter, faster, and more beautiful.
+## Convert HTML directly
 
-## 友情链接
+Use any converter-compatible local HTML deck or URL:
 
-- [LINUX DO](https://linux.do/) —— 新的理想型社区，技术爱好者的聚集地。
+```bash
+node scripts/html_to_ppt.js \
+  --input templates/learn-deck-polished-style.html \
+  --out-dir output \
+  --name learn-deck-polished-style
+```
+
+The output is `output/learn-deck-polished-style-editable.pptx`. The legacy JSON generator remains available for deterministic compatibility, but it is not the default creative path.
+
+## Included templates
+
+- [Seven-slide polished HTML style library](templates/learn-deck-polished-style.html)
+- [Seven-slide polished editable PPTX](templates/learn-deck-polished-style.pptx)
+- [English editable showcase PPTX](templates/learn-deck-showcase-en.pptx)
+- [Chinese editable showcase PPTX](templates/learn-deck-showcase-zh.pptx)
+
+Use the templates to study converter-compatible visual grammar: palette relationships, typography, spacing rhythm, corner radii, borders, shadows, and decorative motifs. Do not copy their sample content or treat their boxes as a schema.
+
+## Good fits
+
+- Courses, lessons, workshops, and classroom slides
+- Internal training, onboarding, and enablement decks
+- Research summaries, reports, and knowledge reviews
+- Product explainers and methodology presentations
+- Reference-image-driven presentations that still need editable objects
+
+## Development
+
+Requirements: Node.js 18 or newer. Final visual preview generation also uses LibreOffice, Poppler (`pdftoppm`), and `sharp`.
+
+```bash
+npm test
+npm pack --dry-run
+```
+
+The smoke test covers direct HTML conversion, DOM-audit failures, layout guards, multiline text handling, and legacy JSON compatibility.
+
+## Project links
+
+- [Report an issue](https://github.com/LearnAIHubC/LearnDeck/issues)
+- [LINUX DO](https://linux.do/) — a community for technology enthusiasts
+
+<div align="center">
+
+If LearnDeck helps you turn knowledge into clearer presentations, consider starring the repository.
+
+</div>

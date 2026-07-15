@@ -1,4 +1,4 @@
 interface:
   display_name: "LearnDeck"
   short_description: "Generate learning decks from HTML into editable PPTX"
-  default_prompt: "Use $learn-deck to generate a PPT from my topic by creating HTML first, then converting it into an editable PPTX."
+  default_prompt: "Use $learn-deck to design a custom HTML presentation from my content and visual direction, convert it to editable PPTX, and verify every slide has no overflow or overlap."
