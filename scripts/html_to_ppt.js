@@ -6,9 +6,10 @@ const { spawnSync } = require("child_process");
 
 function usage() {
   console.log(`Usage:
-  html_to_ppt.js --input <file-or-url> --out-dir <dir> [options]
+  html_to_ppt.js --input <file-or-url> [--out-dir <dir>] [options]
 
 This is a short alias for html_to_editable_pptx.js. It forwards all options.
+Use --dom-audit-only to validate the rendered HTML without writing a PPTX.
 Run with --help-converter to see the full converter help.
 `);
 }

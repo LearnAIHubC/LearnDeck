@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnDeck polished style template</title>
+<!--
+  SEVEN-SLIDE STYLE LIBRARY ONLY:
+  Reuse the visual tokens and construction techniques, not the sample copy or
+  this exact composition. The user's content determines the narrative, slide
+  count, layout, and amount of information on each slide. Preserve or recreate
+  the data-layout-guard attributes on critical rows and bounded containers.
+-->
+<style>
+  :root {
+    --ink: #17233b;
+    --muted: #62738e;
+    --line: #e0e7f2;
+    --blue: #2f72f2;
+    --teal: #0aa49d;
+    --purple: #6549e9;
+    --orange: #ff6a1f;
+    --wash-start: #f4f7ff;
+    --wash-end: #fffafd;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #e9edf5;
+    color: var(--ink);
+    font-family: Arial, "PingFang SC", sans-serif;
+  }
+
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto 28px;
+    background-color: #fafbff;
+  }
+
+  .background-wash {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--wash-start), var(--wash-end));
+  }
+
+  .eyebrow {
+    position: absolute;
+    left: 60px;
+    top: 34px;
+    width: 296px;
+    height: 30px;
+    padding: 8px 14px;
+    border: 1px solid #dbe4f7;
+    border-radius: 18px;
+    background: #f7f9ff;
+    color: #6472f3;
+    font-size: 12px;
+    line-height: 12px;
+    font-weight: 700;
+  }
+
+  .page-number {
+    position: absolute;
+    right: 63px;
+    top: 43px;
+    color: #9aa7bc;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .cover-title {
+    position: absolute;
+    left: 60px;
+    top: 99px;
+    width: 560px;
+    color: var(--ink);
+    font-size: 50px;
+    line-height: 1.08;
+    letter-spacing: -1.3px;
+    font-weight: 800;
+  }
+
+  .cover-title .accent-text { color: var(--purple); }
+
+  .cover-subtitle {
+    position: absolute;
+    left: 60px;
+    top: 232px;
+    width: 540px;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .value-grid {
+    position: absolute;
+    left: 60px;
+    top: 329px;
+    width: 476px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .value-card {
+    height: 104px;
+    padding: 14px 15px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(23, 35, 59, .08);
+  }
+
+  .value-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+  }
+
+  .value-card h3 {
+    color: #1b2941;
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .value-card p {
+    margin-top: 5px;
+    color: #74829a;
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .pipeline {
+    position: absolute;
+    left: 60px;
+    top: 456px;
+    width: 514px;
+    height: 70px;
+    padding: 0 30px;
+    border: 1px solid #e1e4f4;
+    border-radius: 16px;
+    background: linear-gradient(105deg, #fff3f8 0%, #f0f2ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .pipeline span {
+    color: #3e4f69;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .pipeline .arrow {
+    color: #8d99ae;
+    font-size: 18px;
+  }
+
+  .hero-shell {
+    position: absolute;
+    left: 643px;
+    top: 68px;
+    width: 577px;
+    height: 580px;
+    border: 1px solid #dbe3ef;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 5px 18px rgba(26, 42, 70, .08);
+  }
+
+  /* Dedicated control and label slots prevent font-metric overlap in PPT. */
+  .window-header {
+    position: absolute;
+    left: 15px;
+    top: 14px;
+    width: 544px;
+    height: 30px;
+    display: grid;
+    grid-template-columns: 33px minmax(0, 1fr);
+    column-gap: 10px;
+    align-items: center;
+  }
+
+  .window-label {
+    min-width: 0;
+    color: #586983;
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  .window-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 33px;
+  }
+
+  .window-dots span { width: 7px; height: 7px; border-radius: 50%; }
+
+  .mini-slide {
+    position: absolute;
+    left: 15px;
+    top: 45px;
+    width: 546px;
+    height: 308px;
+    padding: 20px 23px;
+    border-radius: 12px;
+    background: #dce7ff;
+  }
+
+  .mini-pill {
+    width: 106px;
+    height: 16px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .18);
+    border: 1px solid rgba(255, 255, 255, .28);
+  }
+
+  .mini-title {
+    width: 237px;
+    height: 20px;
+    margin-top: 17px;
+    border-radius: 4px;
+    background: #18243b;
+  }
+
+  .mini-subtitle {
+    width: 328px;
+    height: 7px;
+    margin-top: 13px;
+    border-radius: 4px;
+    background: #a8b3c6;
+  }
+
+  .mini-color-row {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+  }
+
+  .mini-color-row span { height: 69px; border-radius: 10px; }
+  .blue-gradient { background: linear-gradient(135deg, #2f72f2, #3e7bf0); }
+  .teal-gradient { background: linear-gradient(135deg, #0aa49d, #13b5bc); }
+  .purple-gradient { background: linear-gradient(135deg, #7b35ec, #8944f2); }
+  .orange-gradient { background: linear-gradient(135deg, #ff6a1f, #ff7b25); }
+
+  .mini-white-row {
+    margin-top: 13px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .mini-white-row span { height: 82px; border-radius: 11px; background: #ffffff; }
+
+  .delivery-title {
+    position: absolute;
+    left: 16px;
+    top: 367px;
+    color: #1b2941;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .delivery-grid {
+    position: absolute;
+    left: 15px;
+    top: 395px;
+    width: 546px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px;
+  }
+
+  .delivery-card {
+    height: 96px;
+    padding: 12px 11px 10px;
+    border: 1px solid #e3e8f2;
+    border-radius: 12px;
+    background: #fbfcff;
+  }
+
+  .delivery-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .delivery-icon svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .delivery-card h4 {
+    margin-top: 8px;
+    color: #23324b;
+    font-size: 11px;
+    line-height: 1.1;
+    font-weight: 700;
+  }
+
+  .delivery-card p {
+    margin-top: 5px;
+    color: #7b899e;
+    font-size: 8px;
+    line-height: 1.2;
+  }
+
+  .footer-bar {
+    position: absolute;
+    left: 60px;
+    top: 662px;
+    width: 1160px;
+    height: 39px;
+    padding: 0 17px;
+    border: 1px solid #dfe4f2;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #fff3f8, #f0f4ff);
+    display: flex;
+    align-items: center;
+  }
+
+  .footer-brand { color: #3f37d8; font-size: 10px; font-weight: 700; }
+  .footer-copy { margin-left: 327px; color: #65748f; font-size: 10px; font-weight: 700; }
+  .footer-mode { margin-left: auto; color: #65748f; font-size: 10px; font-weight: 700; }
+
+  .slide-title {
+    position: absolute;
+    left: 60px;
+    top: 86px;
+    width: 900px;
+    color: var(--ink);
+    font-size: 46px;
+    line-height: 1.12;
+    letter-spacing: -1px;
+    font-weight: 800;
+  }
+
+  .slide-lede {
+    position: absolute;
+    left: 60px;
+    top: 154px;
+    width: 790px;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  .statement-title {
+    position: absolute;
+    left: 72px;
+    top: 126px;
+    width: 760px;
+    color: var(--ink);
+    font-size: 56px;
+    line-height: 1.08;
+    letter-spacing: -1.4px;
+    font-weight: 800;
+  }
+
+  .statement-title span { color: var(--purple); }
+
+  .statement-copy {
+    position: absolute;
+    left: 72px;
+    top: 284px;
+    width: 700px;
+    color: var(--muted);
+    font-size: 22px;
+    line-height: 1.55;
+  }
+
+  .statement-rule {
+    position: absolute;
+    left: 72px;
+    top: 412px;
+    width: 720px;
+    height: 2px;
+    background: linear-gradient(90deg, #2f72f2, #6549e9);
+  }
+
+  .principle-row {
+    position: absolute;
+    left: 72px;
+    top: 446px;
+    width: 720px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .principle {
+    height: 112px;
+    padding-top: 14px;
+    border-top: 3px solid #dce5f7;
+  }
+
+  .principle:nth-child(2) { border-top-color: #bfe8e5; }
+  .principle:nth-child(3) { border-top-color: #d9c8fb; }
+  .principle b { color: #1f2d46; font-size: 18px; line-height: 1.2; }
+  .principle p { margin-top: 8px; color: #708099; font-size: 14px; line-height: 1.45; }
+
+  .section-aside {
+    position: absolute;
+    right: 60px;
+    top: 104px;
+    width: 300px;
+    height: 470px;
+    padding: 30px;
+    border: 1px solid #dce4f1;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 5px 18px rgba(26, 42, 70, .07);
+  }
+
+  .aside-label { color: #6776e7; font-size: 12px; font-weight: 800; }
+  .aside-number { margin-top: 18px; color: #6549e9; font-size: 84px; line-height: 1; font-weight: 800; }
+  .aside-title { margin-top: 18px; color: var(--ink); font-size: 26px; line-height: 1.2; font-weight: 800; }
+  .aside-copy { margin-top: 14px; color: var(--muted); font-size: 16px; line-height: 1.55; }
+  .aside-chip { margin-top: 30px; width: 168px; padding: 10px 14px; border-radius: 12px; background: linear-gradient(135deg, #2f72f2, #6549e9); color: #fff; font-size: 12px; font-weight: 800; text-align: center; }
+
+  .question-list {
+    position: absolute;
+    left: 60px;
+    top: 232px;
+    width: 420px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .question-row {
+    height: 92px;
+    padding: 18px 20px;
+    border: 1px solid #dfe6f2;
+    border-radius: 16px;
+    background: #ffffff;
+  }
+
+  .question-row b { color: #263550; font-size: 17px; line-height: 1.2; }
+  .question-row p { margin-top: 8px; color: #718099; font-size: 14px; line-height: 1.4; }
+
+  .concept-map {
+    position: absolute;
+    left: 530px;
+    top: 150px;
+    width: 690px;
+    height: 440px;
+    border: 1px solid #dce4f1;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 5px 18px rgba(26, 42, 70, .06);
+  }
+
+  .map-line-h { position: absolute; left: 180px; top: 219px; width: 330px; height: 2px; background: #d7e0f0; }
+  .map-line-v { position: absolute; left: 344px; top: 92px; width: 2px; height: 256px; background: #d7e0f0; }
+
+  .map-center {
+    position: absolute;
+    left: 275px;
+    top: 150px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2f72f2, #6549e9);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 21px;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .map-node {
+    position: absolute;
+    width: 160px;
+    height: 70px;
+    padding: 13px 14px;
+    border: 1px solid #dce4f1;
+    border-radius: 16px;
+    background: #fbfcff;
+    text-align: center;
+  }
+
+  .map-node b { color: #28364f; font-size: 16px; }
+  .map-node p { margin-top: 6px; color: #75839a; font-size: 12px; }
+  .node-top { left: 265px; top: 24px; }
+  .node-left { left: 20px; top: 185px; }
+  .node-right { right: 20px; top: 185px; }
+  .node-bottom { left: 265px; bottom: 24px; }
+
+  .timeline-track {
+    position: absolute;
+    left: 100px;
+    top: 353px;
+    width: 1080px;
+    height: 6px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #2f72f2, #0aa49d, #6549e9);
+  }
+
+  .timeline-grid {
+    position: absolute;
+    left: 76px;
+    top: 230px;
+    width: 1128px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+
+  .timeline-item { position: relative; height: 260px; }
+  .timeline-dot { position: absolute; left: 119px; top: 116px; width: 20px; height: 20px; border: 5px solid #ffffff; border-radius: 50%; background: #2f72f2; box-shadow: 0 2px 8px rgba(33, 58, 94, .18); }
+  .timeline-item:nth-child(2) .timeline-dot { background: #0aa49d; }
+  .timeline-item:nth-child(3) .timeline-dot { background: #6549e9; }
+  .timeline-item:nth-child(4) .timeline-dot { background: #ff6a1f; }
+
+  .timeline-card {
+    position: absolute;
+    left: 0;
+    width: 258px;
+    min-height: 88px;
+    padding: 16px 18px;
+    border: 1px solid #dfe6f2;
+    border-radius: 16px;
+    background: #ffffff;
+  }
+
+  .timeline-item.above .timeline-card { top: 0; }
+  .timeline-item.below .timeline-card { top: 152px; }
+  .timeline-card .step { color: #6472f3; font-size: 12px; font-weight: 800; }
+  .timeline-card b { display: block; margin-top: 7px; color: #263550; font-size: 18px; }
+  .timeline-card p { margin-top: 7px; color: #74829a; font-size: 13px; line-height: 1.4; }
+
+  .compare-grid {
+    position: absolute;
+    left: 60px;
+    top: 210px;
+    width: 1160px;
+    display: grid;
+    grid-template-columns: 1fr 86px 1fr;
+    gap: 18px;
+  }
+
+  .compare-heading {
+    position: absolute;
+    left: 60px;
+    top: 86px;
+    width: 1160px;
+    height: 104px;
+  }
+
+  .compare-heading .slide-title { left: 0; top: 0; width: 1120px; white-space: nowrap; }
+  .compare-heading .slide-lede { left: 0; top: 68px; width: 900px; }
+
+  .compare-panel {
+    height: 370px;
+    padding: 26px;
+    border: 1px solid #dce4f1;
+    border-radius: 24px;
+    background: #ffffff;
+  }
+
+  .compare-head { height: 68px; padding: 15px 18px; border-radius: 16px; color: #ffffff; }
+  .compare-left .compare-head { background: linear-gradient(135deg, #2f72f2, #4b83f3); }
+  .compare-right .compare-head { background: linear-gradient(135deg, #6549e9, #8a55f1); }
+  .compare-head .mode { font-size: 12px; font-weight: 800; }
+  .compare-head b { display: block; margin-top: 6px; font-size: 21px; }
+
+  .compare-row { min-height: 72px; padding: 16px 2px; border-bottom: 1px solid #e8edf5; }
+  .compare-row:last-child { border-bottom: 0; }
+  .compare-row b { color: #293750; font-size: 16px; }
+  .compare-row p { margin-top: 7px; color: #74829a; font-size: 14px; line-height: 1.4; }
+
+  .criteria {
+    height: 370px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 44px;
+  }
+
+  .criterion { width: 82px; padding: 9px 6px; border: 1px solid #dce4f1; border-radius: 12px; background: #f8faff; color: #63728b; font-size: 11px; font-weight: 800; text-align: center; }
+
+  .metric-panel {
+    position: absolute;
+    left: 60px;
+    top: 210px;
+    width: 390px;
+    height: 360px;
+    padding: 32px;
+    border-radius: 24px;
+    background: linear-gradient(145deg, #2f72f2, #6549e9);
+    color: #ffffff;
+  }
+
+  .metric-panel .sample { font-size: 12px; font-weight: 800; color: #dce8ff; }
+  .metric-panel .metric-value { margin-top: 28px; font-size: 82px; line-height: 1; font-weight: 800; }
+  .metric-panel h3 { margin-top: 20px; font-size: 25px; line-height: 1.2; }
+  .metric-panel p { margin-top: 14px; color: #e5eaff; font-size: 16px; line-height: 1.5; }
+
+  .chart-panel {
+    position: absolute;
+    left: 480px;
+    top: 210px;
+    width: 740px;
+    height: 360px;
+    padding: 28px 30px;
+    border: 1px solid #dce4f1;
+    border-radius: 24px;
+    background: #ffffff;
+  }
+
+  .chart-panel h3 { color: #263550; font-size: 22px; }
+  .chart-panel .chart-note { margin-top: 7px; color: #7a879c; font-size: 13px; }
+  .chart-baseline { position: absolute; left: 40px; bottom: 62px; width: 660px; height: 2px; background: #dfe6f2; }
+
+  .chart-bars {
+    position: absolute;
+    left: 48px;
+    top: 90px;
+    width: 644px;
+    height: 220px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+    align-items: end;
+  }
+
+  .bar-column { height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+  .bar { width: 72px; border-radius: 12px 12px 4px 4px; background: linear-gradient(180deg, #6b55eb, #2f72f2); }
+  .bar-label { margin-top: 10px; color: #65738a; font-size: 13px; font-weight: 800; }
+  .bar-1 { height: 80px; }
+  .bar-2 { height: 122px; }
+  .bar-3 { height: 164px; }
+  .bar-4 { height: 196px; }
+
+  .closing-title {
+    position: absolute;
+    left: 150px;
+    top: 124px;
+    width: 980px;
+    color: var(--ink);
+    font-size: 56px;
+    line-height: 1.1;
+    letter-spacing: -1.2px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .closing-title span { color: var(--purple); }
+  .closing-copy { position: absolute; left: 260px; top: 270px; width: 760px; color: var(--muted); font-size: 21px; line-height: 1.55; text-align: center; }
+
+  .action-row {
+    position: absolute;
+    left: 120px;
+    top: 380px;
+    width: 1040px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .action-card { height: 132px; padding: 22px; border: 1px solid #dce4f1; border-radius: 20px; background: #ffffff; }
+  .action-card .action-number { color: #6549e9; font-size: 15px; font-weight: 800; }
+  .action-card b { display: block; margin-top: 12px; color: #273650; font-size: 20px; }
+  .action-card p { margin-top: 9px; color: #74829a; font-size: 14px; line-height: 1.4; }
+
+  .closing-chip { position: absolute; left: 460px; top: 548px; width: 360px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #2f72f2, #6549e9); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; }
+</style>
+</head>
+<body>
+  <section class="slide" data-style-template="learn-deck-polished">
+    <div class="background-wash" aria-hidden="true"></div>
+    <div class="eyebrow">LEARNDECK · AI PRESENTATION ENGINE</div>
+    <div class="page-number">01 / 07</div>
+
+    <h1 class="cover-title" data-layout-guard="text-contain">Turn knowledge into<br><span class="accent-text">polished, editable PPTs</span></h1>
+    <p class="cover-subtitle">Start with a topic, outline, or source material. Generate a complete presentation with clear structure, consistent visuals, and objects that remain easy to edit.</p>
+
+    <div class="value-grid" data-layout-guard="contain no-overlap">
+      <article class="value-card" data-layout-guard="contain">
+        <div class="value-dot" style="background:#2f72f2"></div>
+        <h3>Clear structure</h3>
+        <p>Titles, key points, and pacing stay easy to follow</p>
+      </article>
+      <article class="value-card" data-layout-guard="contain">
+        <div class="value-dot" style="background:#0aa49d"></div>
+        <h3>Polished visuals</h3>
+        <p>Consistent color, spacing, and hierarchy</p>
+      </article>
+      <article class="value-card" data-layout-guard="contain">
+        <div class="value-dot" style="background:#7b35ec"></div>
+        <h3>Editable delivery</h3>
+        <p>Text, shapes, and icons stay editable</p>
+      </article>
+    </div>
+
+    <div class="pipeline" data-layout-guard="contain no-overlap">
+      <span>Source content</span><span class="arrow">→</span>
+      <span>HTML layout</span><span class="arrow">→</span>
+      <span>Browser geometry</span><span class="arrow">→</span>
+      <span>PPTX rebuild</span>
+    </div>
+
+    <div class="hero-shell" data-layout-guard="contain">
+      <!-- Never replace this structural grid/gap with spaces or &nbsp;. -->
+      <div class="window-header" data-layout-guard="contain no-overlap">
+        <div class="window-dots"><span style="background:#ff7b6e"></span><span style="background:#ffc85b"></span><span style="background:#52cf8a"></span></div>
+        <div class="window-label">LearnDeck editable presentation preview</div>
+      </div>
+
+      <div class="mini-slide">
+        <div class="mini-pill"></div>
+        <div class="mini-title"></div>
+        <div class="mini-subtitle"></div>
+        <div class="mini-color-row">
+          <span class="blue-gradient"></span><span class="teal-gradient"></span><span class="purple-gradient"></span><span class="orange-gradient"></span>
+        </div>
+        <div class="mini-white-row"><span></span><span></span><span></span></div>
+      </div>
+
+      <div class="delivery-title">The delivery stays editable</div>
+      <div class="delivery-grid" data-layout-guard="contain no-overlap">
+        <article class="delivery-card" data-layout-guard="contain">
+          <div class="delivery-icon blue-gradient" data-layout-guard="icon-center">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5h12M10 5v11M7 16h6"/></svg>
+          </div>
+          <h4>Separate text boxes</h4>
+          <p>Edit titles, body copy, and emphasis</p>
+        </article>
+        <article class="delivery-card" data-layout-guard="contain">
+          <div class="delivery-icon teal-gradient" data-layout-guard="icon-center">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="4" width="12" height="12" rx="2"/><path d="M7 8h6M7 11h6"/></svg>
+          </div>
+          <h4>Native shapes</h4>
+          <p>Rearrange cards, blocks, and gradients</p>
+        </article>
+        <article class="delivery-card" data-layout-guard="contain">
+          <div class="delivery-icon purple-gradient" data-layout-guard="icon-center">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5 16.5 10 10 16.5 3.5 10Z"/></svg>
+          </div>
+          <h4>Independent icons</h4>
+          <p>Move, resize, or replace visual assets</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="footer-bar" data-layout-guard="contain no-overlap">
+      <span class="footer-brand">LEARNDECK</span>
+      <span class="footer-copy">Turn knowledge into clear, polished, editable presentations.</span>
+      <span class="footer-mode">HTML → PPTX</span>
+    </div>
+  </section>
+
+  <section class="slide" data-style-template="learn-deck-polished">
+    <div class="background-wash" aria-hidden="true"></div>
+    <div class="eyebrow">LEARNDECK · POLISHED STYLE SYSTEM</div>
+    <div class="page-number">02 / 07</div>
+    <h2 class="statement-title" data-layout-guard="text-contain">A strong deck begins with<br><span>one clear idea</span></h2>
+    <p class="statement-copy">Define what the audience should understand or decide before choosing page structures, charts, or decorative elements.</p>
+    <div class="statement-rule"></div>
+    <div class="principle-row" data-layout-guard="contain no-overlap">
+      <article class="principle" data-layout-guard="contain"><b>Audience</b><p>Write for the people viewing the deck.</p></article>
+      <article class="principle" data-layout-guard="contain"><b>Message</b><p>Give each slide one primary claim.</p></article>
+      <article class="principle" data-layout-guard="contain"><b>Rhythm</b><p>Vary density and composition intentionally.</p></article>
+    </div>
+    <aside class="section-aside" data-layout-guard="contain no-overlap">
+      <div class="aside-label">SECTION OPENER</div>
+      <div class="aside-number">02</div>
+      <div class="aside-title">Clarity before decoration</div>
+      <p class="aside-copy">Use this silhouette for a chapter transition, a decisive statement, or a change in narrative pace.</p>
+      <div class="aside-chip" data-layout-guard="text-contain text-center single-line">STYLE, NOT SCHEMA</div>
+    </aside>
+    <div class="footer-bar" data-layout-guard="contain no-overlap"><span class="footer-brand">LEARNDECK</span><span class="footer-copy">A statement-led composition with one supporting panel.</span><span class="footer-mode">02 / 07</span></div>
+  </section>
+
+  <section class="slide" data-style-template="learn-deck-polished">
+    <div class="background-wash" aria-hidden="true"></div>
+    <div class="eyebrow">LEARNDECK · POLISHED STYLE SYSTEM</div>
+    <div class="page-number">03 / 07</div>
+    <h2 class="slide-title" data-layout-guard="text-contain single-line">Structure follows the learner's questions</h2>
+    <p class="slide-lede">Pair a concise reasoning sequence with one clear relationship map.</p>
+    <div class="question-list" data-layout-guard="contain no-overlap">
+      <article class="question-row" data-layout-guard="contain"><b>What is the core idea?</b><p>State it in language the audience can repeat.</p></article>
+      <article class="question-row" data-layout-guard="contain"><b>What supports it?</b><p>Show only the evidence that changes understanding.</p></article>
+      <article class="question-row" data-layout-guard="contain"><b>What follows next?</b><p>Make the implication or decision explicit.</p></article>
+    </div>
+    <div class="concept-map" data-layout-guard="contain">
+      <div class="map-line-h"></div><div class="map-line-v"></div>
+      <div class="map-node node-top" data-layout-guard="contain"><b>Context</b><p>Why now</p></div>
+      <div class="map-node node-left" data-layout-guard="contain"><b>Evidence</b><p>What proves it</p></div>
+      <div class="map-node node-right" data-layout-guard="contain"><b>Example</b><p>How it works</p></div>
+      <div class="map-node node-bottom" data-layout-guard="contain"><b>Action</b><p>What changes</p></div>
+      <div class="map-center" data-layout-guard="text-contain text-center">Core<br>idea</div>
+    </div>
+    <div class="footer-bar" data-layout-guard="contain no-overlap"><span class="footer-brand">LEARNDECK</span><span class="footer-copy">Use relationships only when they make the claim easier to understand.</span><span class="footer-mode">03 / 07</span></div>
+  </section>
+
+  <section class="slide" data-style-template="learn-deck-polished">
+    <div class="background-wash" aria-hidden="true"></div>
+    <div class="eyebrow">LEARNDECK · POLISHED STYLE SYSTEM</div>
+    <div class="page-number">04 / 07</div>
+    <h2 class="slide-title" data-layout-guard="text-contain single-line">Build momentum one step at a time</h2>
+    <p class="slide-lede">Use an alternating timeline when sequence and progression are the message.</p>
+    <div class="timeline-track"></div>
+    <div class="timeline-grid" data-layout-guard="contain no-overlap">
+      <article class="timeline-item above" data-layout-guard="contain no-overlap"><div class="timeline-card" data-layout-guard="contain"><span class="step">STEP 01</span><b>Frame</b><p>Define the communication job.</p></div><div class="timeline-dot"></div></article>
+      <article class="timeline-item below" data-layout-guard="contain no-overlap"><div class="timeline-card" data-layout-guard="contain"><span class="step">STEP 02</span><b>Shape</b><p>Choose the evidence and narrative.</p></div><div class="timeline-dot"></div></article>
+      <article class="timeline-item above" data-layout-guard="contain no-overlap"><div class="timeline-card" data-layout-guard="contain"><span class="step">STEP 03</span><b>Design</b><p>Give each claim the right visual form.</p></div><div class="timeline-dot"></div></article>
+      <article class="timeline-item below" data-layout-guard="contain no-overlap"><div class="timeline-card" data-layout-guard="contain"><span class="step">STEP 04</span><b>Verify</b><p>Render, inspect, revise, and deliver.</p></div><div class="timeline-dot"></div></article>
+    </div>
+    <div class="footer-bar" data-layout-guard="contain no-overlap"><span class="footer-brand">LEARNDECK</span><span class="footer-copy">Alternate vertical placement to keep a long sequence visually active.</span><span class="footer-mode">04 / 07</span></div>
+  </section>
+
+  <section class="slide" data-style-template="learn-deck-polished">
+    <div class="background-wash" aria-hidden="true"></div>
+    <div class="eyebrow">LEARNDECK · POLISHED STYLE SYSTEM</div>
+    <div class="page-number">05 / 07</div>
+    <div class="compare-heading" data-layout-guard="contain no-overlap"><h2 class="slide-title" data-layout-guard="text-contain single-line">Choose the treatment that serves the message</h2><p class="slide-lede">A comparison page should clarify a choice, not merely duplicate two lists.</p></div>
+    <div class="compare-grid" data-layout-guard="contain no-overlap">
+      <article class="compare-panel compare-left" data-layout-guard="contain"><div class="compare-head"><span class="mode">MODE A</span><b>Explain</b></div><div class="compare-row"><b>Lead with logic</b><p>Use definitions, evidence, and examples.</p></div><div class="compare-row"><b>Keep density moderate</b><p>Let the audience build understanding.</p></div><div class="compare-row"><b>Close with application</b><p>Show how the idea changes practice.</p></div></article>
+      <div class="criteria" data-layout-guard="contain no-overlap"><span class="criterion">PURPOSE</span><span class="criterion">DENSITY</span><span class="criterion">ENDING</span></div>
+      <article class="compare-panel compare-right" data-layout-guard="contain"><div class="compare-head"><span class="mode">MODE B</span><b>Persuade</b></div><div class="compare-row"><b>Lead with stakes</b><p>Make the consequence of inaction clear.</p></div><div class="compare-row"><b>Prioritize decisive proof</b><p>Show evidence that changes the choice.</p></div><div class="compare-row"><b>Close with a decision</b><p>Name the next action and owner.</p></div></article>
+    </div>
+    <div class="footer-bar" data-layout-guard="contain no-overlap"><span class="footer-brand">LEARNDECK</span><span class="footer-copy">Comparison works when every row uses the same decision criterion.</span><span class="footer-mode">05 / 07</span></div>
+  </section>
+
+  <section class="slide" data-style-template="learn-deck-polished">
+    <div class="background-wash" aria-hidden="true"></div>
+    <div class="eyebrow">LEARNDECK · POLISHED STYLE SYSTEM</div>
+    <div class="page-number">06 / 07</div>
+    <h2 class="slide-title" data-layout-guard="text-contain single-line">Use data to make the takeaway visible</h2>
+    <p class="slide-lede">Lead with the meaning of the number, then show the pattern behind it.</p>
+    <article class="metric-panel" data-layout-guard="contain no-overlap"><div class="sample">ILLUSTRATIVE DATA</div><div class="metric-value">68%</div><h3>Faster comprehension</h3><p>Replace this placeholder with verified evidence and a conclusion relevant to the audience.</p></article>
+    <article class="chart-panel" data-layout-guard="contain"><h3>Understanding improves with visual structure</h3><p class="chart-note">Illustrative values — replace with sourced data.</p><div class="chart-baseline"></div><div class="chart-bars" data-layout-guard="contain no-overlap chart-labels"><div class="bar-column" data-chart-series data-layout-guard="contain no-overlap"><div class="bar bar-1"></div><span class="bar-label" data-chart-label>A</span></div><div class="bar-column" data-chart-series data-layout-guard="contain no-overlap"><div class="bar bar-2"></div><span class="bar-label" data-chart-label>B</span></div><div class="bar-column" data-chart-series data-layout-guard="contain no-overlap"><div class="bar bar-3"></div><span class="bar-label" data-chart-label>C</span></div><div class="bar-column" data-chart-series data-layout-guard="contain no-overlap"><div class="bar bar-4"></div><span class="bar-label" data-chart-label>D</span></div></div></article>
+    <div class="footer-bar" data-layout-guard="contain no-overlap"><span class="footer-brand">LEARNDECK</span><span class="footer-copy">Never present an unsourced placeholder as real evidence.</span><span class="footer-mode">06 / 07</span></div>
+  </section>
+
+  <section class="slide" data-style-template="learn-deck-polished">
+    <div class="background-wash" aria-hidden="true"></div>
+    <div class="eyebrow">LEARNDECK · POLISHED STYLE SYSTEM</div>
+    <div class="page-number">07 / 07</div>
+    <h2 class="closing-title" data-layout-guard="text-contain text-center">End with a decision,<br><span>not a generic thank-you</span></h2>
+    <p class="closing-copy">Resolve the opening question and make the audience's next move unmistakable.</p>
+    <div class="action-row" data-layout-guard="contain no-overlap"><article class="action-card" data-layout-guard="contain"><span class="action-number">01</span><b>Synthesize</b><p>Restate the central takeaway.</p></article><article class="action-card" data-layout-guard="contain"><span class="action-number">02</span><b>Decide</b><p>Name the choice or implication.</p></article><article class="action-card" data-layout-guard="contain"><span class="action-number">03</span><b>Act</b><p>Make ownership and timing clear.</p></article></div>
+    <div class="closing-chip" data-layout-guard="text-contain text-center single-line">CLEAR MESSAGE → EDITABLE DELIVERY</div>
+    <div class="footer-bar" data-layout-guard="contain no-overlap"><span class="footer-brand">LEARNDECK</span><span class="footer-copy">The final slide should complete the narrative, not merely stop it.</span><span class="footer-mode">07 / 07</span></div>
+  </section>
+</body>
+</html>

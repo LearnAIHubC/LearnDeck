@@ -198,7 +198,7 @@ function renderSlide(slide, index, total) {
 
   if (layout === "cover") {
     return `<section class="slide ${tone} cover">
-      <div class="accent accent-a"></div><div class="accent accent-b"></div>
+      <div class="accent accent-a" data-layout-allow-overflow></div><div class="accent accent-b" data-layout-allow-overflow></div>
       <div class="kicker">${escapeHtml(kicker)}</div>
       <h1 class="title">${escapeHtml(title)}</h1>
       <p class="subtitle">${escapeHtml(subtitle)}</p>
@@ -216,7 +216,7 @@ function renderSlide(slide, index, total) {
 
   if (layout === "steps") {
     return `<section class="slide ${tone}">
-      <div class="accent accent-a"></div><div class="accent accent-c"></div>
+      <div class="accent accent-a" data-layout-allow-overflow></div><div class="accent accent-c" data-layout-allow-overflow></div>
       <div class="kicker">${escapeHtml(kicker)}</div>
       <h2 class="title">${escapeHtml(title)}</h2>
       <p class="subtitle">${escapeHtml(subtitle)}</p>
@@ -227,7 +227,7 @@ function renderSlide(slide, index, total) {
 
   if (layout === "compare") {
     return `<section class="slide ${tone}">
-      <div class="accent accent-b"></div><div class="accent accent-c"></div>
+      <div class="accent accent-b" data-layout-allow-overflow></div><div class="accent accent-c" data-layout-allow-overflow></div>
       <div class="kicker">${escapeHtml(kicker)}</div>
       <h2 class="title">${escapeHtml(title)}</h2>
       <p class="subtitle">${escapeHtml(subtitle)}</p>
@@ -238,7 +238,7 @@ function renderSlide(slide, index, total) {
 
   if (layout === "summary") {
     return `<section class="slide dark">
-      <div class="accent accent-a"></div><div class="accent accent-b"></div>
+      <div class="accent accent-a" data-layout-allow-overflow></div><div class="accent accent-b" data-layout-allow-overflow></div>
       <div class="kicker">${escapeHtml(kicker)}</div>
       <h2 class="title">${escapeHtml(title)}</h2>
       <p class="subtitle">${escapeHtml(subtitle)}</p>
@@ -249,7 +249,7 @@ function renderSlide(slide, index, total) {
   }
 
   return `<section class="slide ${tone}">
-    <div class="accent accent-a"></div><div class="accent accent-b"></div>
+    <div class="accent accent-a" data-layout-allow-overflow></div><div class="accent accent-b" data-layout-allow-overflow></div>
     <div class="kicker">${escapeHtml(kicker)}</div>
     <h2 class="title">${escapeHtml(title)}</h2>
     <p class="subtitle">${escapeHtml(subtitle)}</p>

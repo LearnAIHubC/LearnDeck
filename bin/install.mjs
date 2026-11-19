@@ -94,9 +94,6 @@ function install(opts) {
   fs.mkdirSync(dest, { recursive: true });
   for (const name of [
     "SKILL.md",
-    "README.md",
-    "README.en.md",
-    "README.zh-CN.md",
     "LICENSE.txt",
     "agents",
     "assets",

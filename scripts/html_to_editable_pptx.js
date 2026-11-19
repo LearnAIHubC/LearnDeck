@@ -35,7 +35,7 @@ const { module: JSZip } = requireFromCandidates("jszip", [path.dirname(pptxResol
 
 function usage(exitCode = 0) {
   console.log(`Usage:
-  html_to_editable_pptx.js --input <file-or-url> --out-dir <dir> [options]
+  html_to_editable_pptx.js --input <file-or-url> [--out-dir <dir>] [options]
 
 Options:
   --input <path|url>          Required local HTML file or http(s) URL
@@ -48,6 +48,7 @@ Options:
   --font-face <name>          PPT font face, defaults to PingFang SC
   --viewport-width <px>       Browser viewport width, defaults to first slide width or 1280
   --viewport-height <px>      Browser viewport height, defaults to first slide height or 720
+  --dom-audit-only            Validate the rendered DOM and exit without creating a PPTX
   --keep-raw                  Keep intermediate raw PPTX before gradient patches
   --no-preview                Skip LibreOffice/Quick Look preview attempt
   --help                      Show this help
@@ -81,12 +82,13 @@ function parseArgs(argv) {
     else if (a === "--font-face") out.fontFace = next();
     else if (a === "--viewport-width") out.viewportWidth = Number(next());
     else if (a === "--viewport-height") out.viewportHeight = Number(next());
+    else if (a === "--dom-audit-only") out.domAuditOnly = true;
     else if (a === "--keep-raw") out.keepRaw = true;
     else if (a === "--no-preview") out.preview = false;
     else throw new Error(`Unknown argument: ${a}`);
   }
   if (!out.input) throw new Error("--input is required");
-  if (!out.outDir) throw new Error("--out-dir is required");
+  if (!out.outDir && !out.domAuditOnly) throw new Error("--out-dir is required unless --dom-audit-only is used");
   if (!Number.isFinite(out.pptWidth) || !Number.isFinite(out.pptHeight)) throw new Error("--ppt-width/--ppt-height must be numbers");
   return out;
 }
@@ -270,6 +272,8 @@ async function collectDom(page, opts) {
         boxShadow: s.boxShadow,
         letterSpacing: s.letterSpacing,
         textAlign: s.textAlign,
+        justifyContent: s.justifyContent,
+        alignItems: s.alignItems,
         opacity: s.opacity,
         paddingLeft: s.paddingLeft,
         paddingRight: s.paddingRight,
@@ -363,13 +367,265 @@ async function collectDom(page, opts) {
       return clone.outerHTML;
     }
 
+    function elementLabel(el) {
+      if (el.id) return `#${el.id}`;
+      const cls = typeof el.className === "string" ? el.className.trim().split(/\s+/).filter(Boolean).join(".") : "";
+      return `${el.tagName.toLowerCase()}${cls ? `.${cls}` : ""}`;
+    }
+
+    function ignored(el) {
+      return Boolean(el.closest("[data-layout-ignore]"));
+    }
+
+    function plainRect(rect) {
+      return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height };
+    }
+
+    function relativeRect(rect, rootRect) {
+      return { x: rect.left - rootRect.left, y: rect.top - rootRect.top, w: rect.width, h: rect.height };
+    }
+
+    function innerRect(el) {
+      const rect = el.getBoundingClientRect();
+      const s = getComputedStyle(el);
+      const left = rect.left + (parseFloat(s.borderLeftWidth) || 0) + (parseFloat(s.paddingLeft) || 0);
+      const right = rect.right - (parseFloat(s.borderRightWidth) || 0) - (parseFloat(s.paddingRight) || 0);
+      const top = rect.top + (parseFloat(s.borderTopWidth) || 0) + (parseFloat(s.paddingTop) || 0);
+      const bottom = rect.bottom - (parseFloat(s.borderBottomWidth) || 0) - (parseFloat(s.paddingBottom) || 0);
+      return { left, right, top, bottom, width: Math.max(0, right - left), height: Math.max(0, bottom - top) };
+    }
+
+    function outsideEdges(rect, parent, tolerance) {
+      const edges = [];
+      if (rect.left < parent.left - tolerance) edges.push("left");
+      if (rect.top < parent.top - tolerance) edges.push("top");
+      if (rect.right > parent.right + tolerance) edges.push("right");
+      if (rect.bottom > parent.bottom + tolerance) edges.push("bottom");
+      return edges;
+    }
+
+    function textOutsideEdges(rect, parent) {
+      const horizontalTolerance = 1.5;
+      const verticalTolerance = Math.max(2, Math.min(14, rect.height * 0.16));
+      const edges = [];
+      if (rect.left < parent.left - horizontalTolerance) edges.push("left");
+      if (rect.right > parent.right + horizontalTolerance) edges.push("right");
+      if (rect.top < parent.top - verticalTolerance) edges.push("top");
+      if (rect.bottom > parent.bottom + verticalTolerance) edges.push("bottom");
+      return edges;
+    }
+
+    function textLineRects(el) {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const rects = [...range.getClientRects()]
+        .filter((rect) => rect.width > 0.25 && rect.height > 0.25)
+        .map(plainRect)
+        .sort((a, b) => a.top - b.top || a.left - b.left);
+      const lines = [];
+      for (const rect of rects) {
+        const line = lines.find((candidate) => Math.min(candidate.bottom, rect.bottom) - Math.max(candidate.top, rect.top) > 0.75);
+        if (!line) {
+          lines.push({ ...rect });
+          continue;
+        }
+        line.left = Math.min(line.left, rect.left);
+        line.top = Math.min(line.top, rect.top);
+        line.right = Math.max(line.right, rect.right);
+        line.bottom = Math.max(line.bottom, rect.bottom);
+        line.width = line.right - line.left;
+        line.height = line.bottom - line.top;
+      }
+      return lines;
+    }
+
+    function layoutGuardIssues(root, rootRect) {
+      const tolerance = 0.75;
+      const issues = [];
+      const modeCounts = {};
+      const all = [...root.querySelectorAll("*")].filter((el) => visible(el) && !ignored(el));
+
+      for (const el of all) {
+        if (!el.closest("[data-layout-allow-overflow]")) {
+          const box = el.getBoundingClientRect();
+          const edges = outsideEdges(box, rootRect, tolerance);
+          if (edges.length) {
+            issues.push({
+              type: "slide-overflow",
+              element: elementLabel(el),
+              edges,
+              slideBox: { x: 0, y: 0, w: rootRect.width, h: rootRect.height },
+              elementBox: relativeRect(box, rootRect),
+            });
+          }
+        }
+
+        if (!textCandidate(el)) continue;
+        const lines = textLineRects(el);
+        const content = innerRect(el);
+        const overflowing = lines.find((line) => textOutsideEdges(line, content).length);
+        const computed = getComputedStyle(el);
+        const clippedX = computed.overflowX !== "visible" && el.scrollWidth > el.clientWidth + 1;
+        const clippedY = computed.overflowY !== "visible" && el.scrollHeight > el.clientHeight + 1;
+        const scrollOverflow = el.clientWidth > 0 && el.clientHeight > 0 && (clippedX || clippedY);
+        if (overflowing || scrollOverflow) {
+          issues.push({
+            type: "text-overflow",
+            element: elementLabel(el),
+            edges: overflowing ? textOutsideEdges(overflowing, content) : ["scroll-size"],
+            contentBox: relativeRect(content, rootRect),
+            textBox: overflowing ? relativeRect(overflowing, rootRect) : undefined,
+            scrollSize: scrollOverflow ? { width: el.scrollWidth, height: el.scrollHeight, clientWidth: el.clientWidth, clientHeight: el.clientHeight } : undefined,
+          });
+        }
+      }
+
+      const guards = [...root.querySelectorAll("[data-layout-guard]")].filter(visible);
+      for (const guard of guards) {
+        const modes = new Set((guard.getAttribute("data-layout-guard") || "").split(/\s+/).filter(Boolean));
+        for (const mode of modes) modeCounts[mode] = (modeCounts[mode] || 0) + 1;
+        const parent = guard.getBoundingClientRect();
+        const children = [...guard.children].filter(visible).map((el) => ({ el, box: el.getBoundingClientRect() }));
+        if (modes.has("contain")) {
+          for (const child of children) {
+            const outside = [];
+            if (child.box.left < parent.left - tolerance) outside.push("left");
+            if (child.box.top < parent.top - tolerance) outside.push("top");
+            if (child.box.right > parent.right + tolerance) outside.push("right");
+            if (child.box.bottom > parent.bottom + tolerance) outside.push("bottom");
+            if (outside.length) {
+              issues.push({
+                type: "contain",
+                guard: elementLabel(guard),
+                child: elementLabel(child.el),
+                edges: outside,
+                guardBox: relBox(guard, rootRect),
+                childBox: relBox(child.el, rootRect),
+              });
+            }
+          }
+        }
+        if (modes.has("no-overlap")) {
+          for (let i = 0; i < children.length; i++) {
+            for (let j = i + 1; j < children.length; j++) {
+              const a = children[i];
+              const b = children[j];
+              const overlapW = Math.min(a.box.right, b.box.right) - Math.max(a.box.left, b.box.left);
+              const overlapH = Math.min(a.box.bottom, b.box.bottom) - Math.max(a.box.top, b.box.top);
+              if (overlapW > tolerance && overlapH > tolerance) {
+                issues.push({
+                  type: "overlap",
+                  guard: elementLabel(guard),
+                  first: elementLabel(a.el),
+                  second: elementLabel(b.el),
+                  overlap: { w: overlapW, h: overlapH },
+                  firstBox: relBox(a.el, rootRect),
+                  secondBox: relBox(b.el, rootRect),
+                });
+              }
+            }
+          }
+        }
+        if (modes.has("text-contain") || modes.has("single-line") || modes.has("text-center")) {
+          const lines = textLineRects(guard);
+          const content = innerRect(guard);
+          if (modes.has("text-contain")) {
+            for (const line of lines) {
+              const edges = textOutsideEdges(line, content);
+              if (edges.length) {
+                issues.push({
+                  type: "guarded-text-overflow",
+                  guard: elementLabel(guard),
+                  edges,
+                  guardBox: relativeRect(content, rootRect),
+                  textBox: relativeRect(line, rootRect),
+                });
+                break;
+              }
+            }
+
+            const radius = parseFloat(getComputedStyle(guard).borderTopLeftRadius) || 0;
+            const ellipseLike = Math.max(parent.width, parent.height) / Math.max(1, Math.min(parent.width, parent.height)) < 1.2
+              && radius >= Math.min(parent.width, parent.height) * 0.45;
+            if (ellipseLike) {
+              const cx = parent.left + parent.width / 2;
+              const cy = parent.top + parent.height / 2;
+              const rx = parent.width / 2;
+              const ry = parent.height / 2;
+              for (const line of lines) {
+                const dy = Math.abs((line.top + line.bottom) / 2 - cy);
+                const available = dy < ry ? rx * Math.sqrt(Math.max(0, 1 - (dy * dy) / (ry * ry))) : 0;
+                if (line.left < cx - available - 1.5 || line.right > cx + available + 1.5) {
+                  issues.push({
+                    type: "ellipse-text-overflow",
+                    guard: elementLabel(guard),
+                    guardBox: relativeRect(parent, rootRect),
+                    textBox: relativeRect(line, rootRect),
+                  });
+                  break;
+                }
+              }
+            }
+          }
+          if (modes.has("single-line") && lines.length > 1) {
+            issues.push({ type: "unexpected-wrap", guard: elementLabel(guard), lines: lines.length, guardBox: relBox(guard, rootRect) });
+          }
+          if (modes.has("text-center") && lines.length) {
+            const horizontalTolerance = Math.max(2.5, Math.min(8, content.width * 0.03));
+            const offCenterLine = lines.find((line) => Math.abs((line.left + line.right) / 2 - (content.left + content.right) / 2) > horizontalTolerance);
+            const textTop = Math.min(...lines.map((line) => line.top));
+            const textBottom = Math.max(...lines.map((line) => line.bottom));
+            const dx = offCenterLine ? (offCenterLine.left + offCenterLine.right) / 2 - (content.left + content.right) / 2 : 0;
+            const dy = (textTop + textBottom) / 2 - (content.top + content.bottom) / 2;
+            if (offCenterLine || Math.abs(dy) > Math.max(3, content.height * 0.06)) {
+              issues.push({ type: "text-center-drift", guard: elementLabel(guard), drift: { x: dx, y: dy }, guardBox: relativeRect(content, rootRect) });
+            }
+          }
+        }
+        if (modes.has("icon-center")) {
+          const icons = [...guard.querySelectorAll("svg")].filter(visible);
+          if (icons.length !== 1) {
+            issues.push({ type: "icon-count", guard: elementLabel(guard), expected: 1, actual: icons.length });
+          } else {
+            const content = innerRect(guard);
+            const icon = icons[0].getBoundingClientRect();
+            const dx = (icon.left + icon.right) / 2 - (content.left + content.right) / 2;
+            const dy = (icon.top + icon.bottom) / 2 - (content.top + content.bottom) / 2;
+            if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+              issues.push({ type: "icon-center-drift", guard: elementLabel(guard), drift: { x: dx, y: dy }, iconBox: relativeRect(icon, rootRect), guardBox: relativeRect(content, rootRect) });
+            }
+          }
+        }
+        if (modes.has("chart-labels")) {
+          const series = [...guard.querySelectorAll(":scope > [data-chart-series]")].filter(visible);
+          if (!series.length) issues.push({ type: "chart-series-missing", guard: elementLabel(guard) });
+          for (const item of series) {
+            const label = item.querySelector("[data-chart-label]");
+            if (!label || !visible(label) || !(label.innerText || label.textContent || "").trim()) {
+              issues.push({ type: "chart-label-missing", guard: elementLabel(guard), series: elementLabel(item) });
+              continue;
+            }
+            const seriesBox = item.getBoundingClientRect();
+            const labelBox = label.getBoundingClientRect();
+            const edges = outsideEdges(labelBox, seriesBox, tolerance);
+            if (edges.length) issues.push({ type: "chart-label-overflow", guard: elementLabel(guard), series: elementLabel(item), label: elementLabel(label), edges });
+          }
+        }
+      }
+      return { count: guards.length, modeCounts, issues };
+    }
+
     return roots.map((root, slideIndex) => {
       const rootRect = root.getBoundingClientRect();
       const all = [...root.querySelectorAll("*")].filter(visible);
+      const guardResult = layoutGuardIssues(root, rootRect);
       return {
         slideIndex,
         box: { x: 0, y: 0, w: rootRect.width, h: rootRect.height },
         rootStyle: style(root),
+        layoutGuardCount: guardResult.count,
+        layoutGuardModes: guardResult.modeCounts,
+        layoutIssues: guardResult.issues,
         elements: all.map((el, idx) => {
           const tc = textCandidate(el);
           const parentTc = el.parentElement && root.contains(el.parentElement) && textCandidate(el.parentElement);
@@ -427,10 +683,21 @@ function addText(slide, name, item, box, ctx, opts) {
   const style = item.style || {};
   const color = rgbParts(style.color);
   const fallbackColor = opts.fallbackColor || "1E293B";
-  const runs = (item.runs || []).map((r) => {
+  const horizontalAlign = style.textAlign === "center" || style.justifyContent === "center"
+    ? "center"
+    : style.textAlign === "right" || style.justifyContent === "flex-end"
+      ? "right"
+      : "left";
+  const verticalAlign = style.alignItems === "center" ? "mid" : style.alignItems === "flex-end" ? "bottom" : "top";
+  const runs = [];
+  for (const r of item.runs || []) {
+    if (r.text === "\n") {
+      if (runs.length) runs[runs.length - 1].options.breakLine = true;
+      continue;
+    }
     const rs = r.style || style;
     const c = rgbParts(rs.color);
-    return {
+    runs.push({
       text: r.text,
       options: {
         fontFace: opts.fontFace,
@@ -441,8 +708,8 @@ function addText(slide, name, item, box, ctx, opts) {
         charSpacing: pxNum(rs.letterSpacing, 0) ? ctx.pt(pxNum(rs.letterSpacing, 0)) : undefined,
         breakLine: false,
       },
-    };
-  });
+    });
+  }
   slide.addText(runs.length ? runs : item.text, {
     objectName: name,
     ...ctx.pos(box),
@@ -453,12 +720,12 @@ function addText(slide, name, item, box, ctx, opts) {
     bold: Number(style.fontWeight || 400) >= 600,
     italic: style.fontStyle === "italic",
     charSpacing: pxNum(style.letterSpacing, 0) ? ctx.pt(pxNum(style.letterSpacing, 0)) : undefined,
-    align: style.textAlign === "center" ? "center" : style.textAlign === "right" ? "right" : "left",
+    align: horizontalAlign,
     lineSpacing: style.lineHeight && style.lineHeight !== "normal" ? ctx.pt(pxNum(style.lineHeight)) : undefined,
     margin: 0,
     fit: "none",
     breakLine: false,
-    valign: "top",
+    valign: verticalAlign,
   });
 }
 
@@ -466,7 +733,23 @@ function expandedTextBox(item, slideBox) {
   const b = { ...(item.contentBox || item.box) };
   const size = pxNum(item.style && item.style.fontSize, 12);
   const extra = Math.max(8, Math.min(28, size * 1.4));
-  b.w = Math.min(slideBox.w - b.x, b.w + extra);
+  const style = item.style || {};
+  const align = style.textAlign === "center" || style.justifyContent === "center"
+    ? "center"
+    : style.textAlign === "right" || style.justifyContent === "flex-end"
+      ? "right"
+      : "left";
+  if (align === "center") {
+    const grow = Math.min(extra / 2, b.x, slideBox.w - b.x - b.w);
+    b.x -= grow;
+    b.w += grow * 2;
+  } else if (align === "right") {
+    const grow = Math.min(extra, b.x);
+    b.x -= grow;
+    b.w += grow;
+  } else {
+    b.w = Math.min(slideBox.w - b.x, b.w + extra);
+  }
   b.h = Math.min(slideBox.h - b.y, b.h + Math.max(2, size * 0.25));
   return b;
 }
@@ -670,12 +953,6 @@ function tryPreview(pptxPath, outDir, baseName) {
 async function main() {
   const opts = parseArgs(process.argv);
   const baseName = safeName(opts.name || defaultName(opts.input));
-  const outDir = path.resolve(opts.outDir);
-  const assetDir = path.join(outDir, `${baseName}-assets`);
-  const rawPath = path.join(outDir, `${baseName}-editable.raw.pptx`);
-  const outPath = path.join(outDir, `${baseName}-editable.pptx`);
-  fs.mkdirSync(outDir, { recursive: true });
-  fs.rmSync(assetDir, { recursive: true, force: true });
 
   const launchOptions = { headless: true };
   const browserPath = findBrowser(opts.chrome);
@@ -699,6 +976,33 @@ async function main() {
   const slideData = await collectDom(page, opts);
   await browser.close();
   if (!slideData.length) throw new Error("No slide/body content found.");
+  const layoutIssues = slideData.flatMap((slide) => (slide.layoutIssues || []).map((issue) => ({ slide: slide.slideIndex + 1, ...issue })));
+  if (layoutIssues.length) {
+    const details = layoutIssues.slice(0, 20).map((issue) => `slide ${issue.slide}: ${JSON.stringify(issue)}`).join("\n");
+    const suffix = layoutIssues.length > 20 ? `\n... ${layoutIssues.length - 20} more issue(s)` : "";
+    throw new Error(`HTML DOM audit failed with ${layoutIssues.length} issue(s):\n${details}${suffix}`);
+  }
+
+  const guardModes = {};
+  for (const slide of slideData) {
+    for (const [mode, count] of Object.entries(slide.layoutGuardModes || {})) guardModes[mode] = (guardModes[mode] || 0) + count;
+  }
+  const domAudit = {
+    issues: 0,
+    guardElements: slideData.reduce((n, slide) => n + (slide.layoutGuardCount || 0), 0),
+    guardModes,
+  };
+  if (opts.domAuditOnly) {
+    console.log(JSON.stringify({ mode: "dom-audit-only", input: opts.input, slides: slideData.length, domAudit }, null, 2));
+    return;
+  }
+
+  const outDir = path.resolve(opts.outDir);
+  const assetDir = path.join(outDir, `${baseName}-assets`);
+  const rawPath = path.join(outDir, `${baseName}-editable.raw.pptx`);
+  const outPath = path.join(outDir, `${baseName}-editable.pptx`);
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.rmSync(assetDir, { recursive: true, force: true });
 
   const svgAssets = await saveSvgAssets(slideData, assetDir);
   const pptx = new pptxgen();
@@ -734,7 +1038,9 @@ async function main() {
       textElements: slideData.reduce((n, s) => n + s.elements.filter((e) => e.textCandidate).length, 0),
       svgImages: svgAssets.map.size,
       gradientPatches: gradientPatches.length,
+      layoutGuards: slideData.reduce((n, s) => n + (s.layoutGuardCount || 0), 0),
     },
+    domAudit,
     previewDir,
   };
   console.log(JSON.stringify(summary, null, 2));
